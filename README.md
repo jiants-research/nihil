@@ -48,35 +48,21 @@ Nihil est une plateforme éducative et culturelle conçue pour promouvoir, valor
 ### 🗣️ 1. Traduction vocale en temps réel *(Speech-to-Speech)*  
 Parlez dans une langue locale, obtenez la voix traduite dans une autre.
 
-![Traduction vocale](assets/screens/01_traduction_vocale.png)
+![Traduction vocale](./screens/traduction SS.png)
 
 ---
 
 ### 💬 2. Traduction texte à texte  
 Saisissez un texte dans n’importe quelle langue prise en charge et obtenez sa traduction instantanée.
 
-![Texte à texte](assets/screens/02_text_to_text.png)
+![Texte à texte](./screens/traduction tt.png)
 
 ---
 
 ### 📂 3. Upload de fichiers audio  
 Importez un fichier (journal radio, message vocal, podcast...) → obtenez **transcription + traduction**.
 
-![Upload audio](assets/screens/03_upload_audio.png)
-
----
-
-### 🧠 4. Détection automatique de la langue  
-Plus besoin de choisir manuellement la langue d’entrée. L’application la détecte intelligemment.
-
-![Langue automatique](assets/screens/04_lang_detect.png)
-
----
-
-### 👥 5. Mode conversation  
-Parfait pour les discussions bilingues : chacun parle dans sa langue, l'app traduit pour l’autre.
-
-![Mode conversation](assets/screens/05_mode_conversation.png)
+![Upload audio](./screens/traduction audio.png)
 
 ---
 
