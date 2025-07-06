@@ -1,7 +1,7 @@
 # NIHIL — Le Retour des Langues
 
 <video controls width="640" height="360">
-  <source src="Communication/prom.mp4" type="video/mp4">
+  <source src="https://github.com/jiants-research/nihil/blob/5614951e5b1107118bc135d9b3c4d447f50701c2/Communication/prom.mp4" type="video/mp4">
   Your browser does not support the video tag.
 </video>
 
