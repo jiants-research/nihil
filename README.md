@@ -1,6 +1,16 @@
-# NIHIL — Back To Tongues with Many-To-Many Language Translation
+# NIHIL — Le Retour des Langues
 
 [![W&B Training Report](https://api.wandb.ai/links/jiants-research/g799trkt)](https://api.wandb.ai/links/jiants-research/g799trkt)
+
+---
+
+## 🎤 Mot de l’équipe
+
+> **Bonsoir à l’équipe du concours CONIA,  
+> JIANTS vous présente Nihil : l’IA pour donner une voix aux langues camerounaises et pas seulement traduire.**  
+>
+> “Nihil, a IA inyu ti we lipém inyu ngandak langues camerounaises.”  
+> *Traduit en basaa par Nihil, notre Intelligence Artificielle.*
 
 ---
 
@@ -9,49 +19,56 @@
 **Titre du projet :** BACK TO TONGUES  
 **Nom de l’application :** NIHIL  
 **Nom de l’équipe :** The Young JIANTS  
+**Responsable :** André Kévin NYEMB, Ingénieur de recherche en IA  
 
-NIHIL est une plateforme éducative et culturelle dédiée à la valorisation et à la préservation des langues maternelles camerounaises. Elle offre des services de traduction multilingue (speech-to-text, text-to-speech, speech-to-speech et text-to-text) pour trois langues : **Anglais**, **Français** et **Bassa**. NIHIL intègre également des jeux pédagogiques et des cours structurés pour rendre l’apprentissage interactif et accessible au quotidien.
+Nihil est une plateforme éducative et culturelle conçue pour promouvoir, valoriser et préserver les langues maternelles camerounaises. L’application propose des services de traduction multiforme et d’apprentissage interactif pour le **basaa**, le **français** et l’**anglais**, avec pour ambition de se déployer progressivement vers d’autres idiomes.
 
 ---
 
 ## 🎯 Objectifs
 
 ### Objectifs généraux  
-- **Promouvoir la culture locale** à travers l’usage et l’apprentissage des langues maternelles.  
-- **Encourager l’intelligence artificielle** dans le domaine de l’éducation linguistique.  
-- **Faciliter l’adoption** des outils numériques pour l’apprentissage des langues.
+- **Valoriser la culture locale** et les langues maternelles.  
+- **Intégrer l’IA** dans l’apprentissage linguistique.  
+- **Réduire la fracture numérique** en offrant des outils accessibles à tous.
 
 ### Objectifs spécifiques  
-- Développer une application d’apprentissage basée sur :  
-  - Les fondements de l’écriture et du vocabulaire  
-  - La traduction automatisée multiforme (par écrit et par la voix)  
-- Créer des **jeux éducatifs** favorisant l’interaction en langues locales.  
-- Proposer des **cours structurés** et motivants pour tous les âges.
+- Développer un **module de traduction** (text-to-text, text-to-speech, speech-to-text, speech-to-speech).  
+- Concevoir des **jeux éducatifs** et cours structurés pour une pratique quotidienne.  
+- Mettre en place un **correcteur vocal** pour améliorer prononciation et orthographe.  
+- Constituer et raffiner un **corpus multilingue** (basaa ←→ français ←→ anglais, 112 000 lignes alignées).
 
 ---
 
-## 🚀 Fonctionnalités
+## 🚀 Fonctionnalités clés
 
-- **Traduction bidirectionnelle** : Basaa ↔ Français, Basaa ↔ Anglais  
-- **Text-to-Text** et **Text-to-Speech**  
-- **Speech-to-Text** et **Speech-to-Speech**  
-- **Jeux interactifs** : quiz, flashcards, puzzles de mots  
-- **Cours modulaires** : grammaire, vocabulaire, expressions  
-- **Suivi de progression** : historique, scores et badges  
-- **Interface conviviale** adaptée aux enfants et aux adultes
-
----
-
-## 👥 Public cible
-
-- **Enfants** : découverte ludique des langues  
-- **Adultes** : perfectionnement et pratique quotidienne  
-- **Éducateurs** : support pédagogique pour classes et ateliers  
-- **Passionnés de langues** et de cultures africaines  
+1. **Traduction tridirectionnelle**  
+   - Basaa ↔ Français  
+   - Basaa ↔ Anglais  
+   - Français ↔ Anglais  
+2. **Speech-to-Text & Text-to-Speech**  
+   - Transcription en direct des conversations WhatsApp en basaa.  
+   - Synthèse vocale expérimentale en basaa.  
+3. **Jeux & Cours interactifs**  
+   - Quiz, flashcards, puzzles de mots.  
+   - Leçons modulaires (grammaire, vocabulaire, expressions).  
+4. **Suivi de progression**  
+   - Historique, scores, badges et encouragements.  
+5. **Interface adaptée**  
+   - Conçue pour enfants et adultes, sans création de compte ni abonnement.
 
 ---
 
-## 🔧 Installation & Prise en main
+## 📈 Rapport d’entraînement
+
+- **Modèle de base** (220 M paramètres) finement ajusté — batch_size=64.  
+- **Toucan-1.2B + PEFT (LoRA)** — entraînement d’adaptateurs légers, batch_size=128.  
+- Visualisation des courbes de perte, BLEU scores et consommation GPU sur Weights & Biases.  
+  👉 [Voir le rapport complet](https://api.wandb.ai/links/jiants-research/g799trkt)
+
+---
+
+## 🛠️ Installation & Usage
 
 1. **Cloner le dépôt**  
    ```bash
