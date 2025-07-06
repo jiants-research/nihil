@@ -1,6 +1,10 @@
 # NIHIL — Le Retour des Langues
 
-[![W&B Training Report](https://api.wandb.ai/links/jiants-research/g799trkt)](https://api.wandb.ai/links/jiants-research/g799trkt)
+<video controls width="640" height="360">
+  <source src="Communication/prom.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
+
 
 ---
 
