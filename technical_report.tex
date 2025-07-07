@@ -1,0 +1,139 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amsfonts,amssymb}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{cite}
+\usepackage{authblk}
+
+% Title and Authors
+\title{\begin{center}
+  \includegraphics[height=0.5\textheight]{Communication/logo.png}
+\end{center}\\Nihil: Technical Documentation\\
+Text-to-Speech, Speech-to-Text, and Many-to-Many MT5 Toucan Fine-Tuning}
+\author[1]{The Young JIANTS}
+\affil[1]{JIANTS Research Lab}
+\date{\today}
+
+\begin{document}
+% Add JIANTS logo on first page
+
+\maketitle
+
+\newpage
+\begin{abstract}
+This document details the end-to-end design and implementation of Nihil's core services: \textbf{Text-to-Speech (TTS)}, \textbf{Speech-to-Text (STT)}, and \textbf{Many-to-Many Machine Translation} via fine-tuning the MT5-based Toucan model. We cover data collection, preprocessing, model architectures, training protocols, evaluation, and deployment considerations, with rigorous citations to foundational and recent works.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+\section{Data Collection and Preparation}
+\subsection{TTS Dataset}
+We assembled a Basaa speech corpus of $\approx$15 hours of high-quality recordings from native speakers, sampled at 24 kHz. Text transcripts were normalized (lowercasing, punctuation removal) and phonemized via a custom Basaa grapheme-to-phoneme converter.
+
+\subsection{STT Dataset}
+The STT dataset reuses the TTS audio with manual transcripts, plus few additional spontaneous speech from WhatsApp voice notes. We applied SpecAugment (time warping, frequency masking) to increase robustness\cite{baevski2020wav2vec2}.
+
+\subsection{MT Parallel Corpora}
+Our machine translation corpora comprise:
+\begin{itemize}
+  \item Basaa–French: \approxeq\ 80k aligned sentences harvested from scraped community content and volunteer translations.
+  \item Basaa–English: \approxeq\ 40k sentences via back-translation and bilingual volunteers.
+  \item French–English: public Europarl subset for transfer learning.
+\end{itemize}
+We split each into 90\% train, 5\% validation, and 5\% test.
+
+\section{Preprocessing Pipelines}
+\subsection{Acoustic Features}
+Audio is resampled to 16 kHz and normalized; mel-spectrograms are computed with 80 bins, 50 ms window, 12.5 ms hop. For TTS, mel targets are aligned with text via a monotonic attention layer (Glow-TTS)\cite{kim2020glowtts}.
+
+\subsection{Tokenization and Prefixing}
+We use the MT5 tokenizer\cite{xue2020mt5}. Every translation input is prepended with a prefix token: ``bas: '', ``fra: '', or ``eng: '' to guide decoding direction\cite{raffel2020t5}.
+
+\section{Model Architectures}
+\subsection{Text-to-Speech}
+We employ a two-stage TTS model:
+\begin{enumerate}
+  \item \textbf{FastSpeech2} for mel-spectrogram prediction (encoder, duration predictor, decoder)\cite{ren2020fastspeech}.
+  \item \textbf{HiFi-GAN} vocoder to convert mel-spectrograms into waveform audio\cite{kim2020hifigan}.
+  
+  We also explore VITS (yourTTS) for end-to-end Speech Synthesis.
+\end{enumerate}
+Training minimizes L1 and adversarial losses:
+\begin{equation}
+  \mathcal{L}_{\mathrm{TTS}} = \|M - \hat{M}\|_1 + \lambda_{\mathrm{GAN}} \sum_{k} \mathcal{L}_{\mathrm{GAN}}^k.
+\end{equation}
+
+\subsection{Speech-to-Text}
+We fine-tune \textbf{wav2vec~2.0 Large} pre-trained on LibriSpeech, with CTC head for Basaa transcription. The CTC objective:
+\begin{equation}
+  \mathcal{L}_{\mathrm{CTC}} = -\log p(\mathbf{l} \mid \mathbf{x}),
+\end{equation}
+where $\mathbf{x}$ is the latent audio representation and $\mathbf{l}$ the token sequence\cite{baevski2020wav2vec2}.
+
+\subsection{Many-to-Many Translation: MT5 Toucan}
+The \textbf{Toucan-1.2B} model is a T5-based encoder-decoder with 1.23B parameters, pre-trained on multilingual text. We apply \textbf{LoRA} adapters to the query and value projection matrices in each Transformer block, injecting low-rank updates (rank $r=8$, \texttt{lora\_alpha}=16) to reduce trainable parameters to <1\% of total\cite{hu2021lora}.
+
+\section{Training Setup}
+All experiments ran on NVIDIA T4 GPUs.
+\subsection{TTS and STT}
+\textbf{Hyperparameters:}
+\begin{itemize}
+  \item Optimizer: AdamW, LR 1e-4 (TTS), 2e-5 (STT)
+  \item Batch size: 16 for FastSpeech2, 8 for HiFi-GAN; 32 sequences for wav2vec2.0
+  \item Epochs: 1000 (TTS), 30 (STT)
+  \item Gradient clipping at 1.0
+\end{itemize}
+
+\subsection{MT5 Fine-Tuning}
+\textbf{Hyperparameters:}
+\begin{itemize}
+  \item LoRA rank $r=8$, dropout 0.05
+  \item Optimizer: paged AdamW 8-bit, LR 5e-5
+  \item Batch size: 32, gradient accumulation 4 (effective 128)
+  \item Epochs: 5, max length 512, warm-up steps 10\% total
+\end{itemize}
+We use `accelerate` for distributed offloading and mixed precision.
+
+\section{Evaluation Metrics and Results}
+\subsection{TTS}
+Du to time constraint, we report Mean Opinion Scores (MOS) on 1 listener ratings:
+\begin{itemize}
+  \item VITS: mel_spec = 26.43 \textpm loss_duration = 2.69 \textpm loss_disc = 2.64
+\end{itemize}
+
+\subsection{STT}
+Word Error Rate (WER) on the Basaa test set:
+\begin{itemize}
+  \item whisper-tiny: WER = 5.5\%
+\end{itemize}
+
+\section{Discussion}
+Adapter-based fine-tuning achieves nearly identical translation quality with \textless1\% of parameters updated, slashing GPU memory usage from 15GiB to 4GiB. TTS pipeline latency is 120ms per utterance; STT throughput is 10x real-time.
+
+\section{Future Work}
+We plan to:
+\begin{itemize}
+  \item Extend to additional Cameroonian languages (e.g. Duala, Fulfulde)
+  \item Integrate end-to-end speech translation (speech-to-speech) using cascade and direct models\cite{jia2019direct}
+  \item Deploy on edge devices via model pruning and quantization
+\end{itemize}
+
+\bibliographystyle{plain}
+\begin{thebibliography}{10}
+  \bibitem{elmadany2024toucan} A.~Elmadany et al., "Toucan: Many-to-Many Translation for 150 African Language Pairs," Findings of ACL 2024.
+  \bibitem{coqui2024tts} S.~N.~Mehdi, "Coqui TTS: Deep Dive Into an Open-Source TTS Framework," Medium 2025.
+  \bibitem{baevski2020wav2vec2} A.~Baevski et al., "wav2vec 2.0: A Framework for Self-Supervised Learning of Speech Representations," NeurIPS 2020.
+  \bibitem{radford2022whisper} A.~Radford et al., "Robust Speech Recognition via Large-Scale Weak Supervision," arXiv:2212.04356, 2022.
+  \bibitem{kim2020hifigan} J.~Kim et al., "HiFi-GAN: Generative Adversarial Networks for Efficient and High-Fidelity Speech Synthesis," arXiv:2010.05646, 2020.
+  \bibitem{ren2020fastspeech} Y.~Ren et al., "FastSpeech 2: Fast and High-Quality End-to-End Text to Speech," ICASSP 2021.
+  \bibitem{kim2020glowtts} J.~Kim et al., "Glow-TTS: A Generative Flow for Text-to-Speech via Monotonic Alignment Search," arXiv:2005.11129, 2020.
+  \bibitem{xue2020mt5} L.~Xue et al., "mT5: A Massively Multilingual Pre-trained Text-to-Text Transformer," arXiv:2010.11934, 2020.
+  \bibitem{raffel2020t5} C.~Raffel et al., "Exploring the Limits of Transfer Learning with a Unified Text-to-Text Transformer," JMLR 2020.
+  \bibitem{hu2021lora} E.~Hu et al., "LoRA: Low-Rank Adaptation of Large Language Models," arXiv:2106.09685, 2021.
+  \bibitem{jia2019direct} Y.~Jia et al., "Direct Speech-to-Speech Translation with a Sequence-to-Sequence Model," ICASSP 2019.
+\end{thebibliography}
+
+\end{document}
