@@ -1,6 +1,6 @@
 # NIHIL — Le Retour des Langues
 
-[![Watch the video](./Communication/video-thumbnail.png)](./Communication/prom.mp4)
+[![Watch the video](./Communication/video-thumbnail.jpg)](./Communication/prom.mp4)
 
 
 
