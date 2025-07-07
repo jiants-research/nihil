@@ -111,7 +111,7 @@ async def tts(request: TTSRequest):
     try:
         tts_model.tts_to_file(
             text=request.text,
-            speaker_wav=None,
+            speaker_wav="Recording.wav",
             language=lang_tag,
             file_path=tmp.name
         )
