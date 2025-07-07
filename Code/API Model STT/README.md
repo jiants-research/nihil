@@ -63,7 +63,7 @@ docker run -p 8000:8000 coqui-tts-api
 - Corps JSON :
 ```
 {
-  "text": "Hôyôs me mbegee!"
+  "text": "Ba ñoo bé jón"
 }
 ```
 - Réponse : un fichier audio .wav généré par le modèle
@@ -96,4 +96,4 @@ uvicorn main:app --reload
 ## 📌 Notes
 
 Le modèle utilisé est un modèle VITS entraîné sur un corpus en langue Bassa.
-Le fichier config.json et le checkpoint .pth doivent être présents dans le dossier run-*.
+Le fichier config.json et le checkpoint .pth doivent être présents dans le dossier **run-**.

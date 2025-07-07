@@ -33,6 +33,7 @@ if not os.path.exists(pth_path) and os.path.exists(tgz_path):
     with tarfile.open(tgz_path, "r:gz") as tar:
         tar.extractall(RUN_FOLDER)
 
+
 device = "cuda" if torch.cuda.is_available() else "cpu"
 config = VitsConfig()
 config.load_json(CONFIG_PATH)
