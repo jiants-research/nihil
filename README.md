@@ -48,21 +48,21 @@ Nihil est une plateforme éducative et culturelle conçue pour promouvoir, valor
 ### 🗣️ 1. Traduction vocale en temps réel *(Speech-to-Speech)*  
 Parlez dans une langue locale, obtenez la voix traduite dans une autre.
 
-![Traduction vocale](./screens/traduction SS.png)
+![Traduction vocale](./screens/traduction_SS.png)
 
 ---
 
 ### 💬 2. Traduction texte à texte  
 Saisissez un texte dans n’importe quelle langue prise en charge et obtenez sa traduction instantanée.
 
-![Texte à texte](./screens/traduction tt.png)
+![Texte à texte](./screens/traduction_tt.png)
 
 ---
 
 ### 📂 3. Upload de fichiers audio  
 Importez un fichier (journal radio, message vocal, podcast...) → obtenez **transcription + traduction**.
 
-![Upload audio](./screens/traduction audio.png)
+![Upload audio](./screens/traduction_audio.png)
 
 ---
 
