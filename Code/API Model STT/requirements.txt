@@ -1,0 +1,19 @@
+# Whisper et dépendances de base
+git+https://github.com/openai/whisper.git
+
+# Traitement audio et ASR
+torchaudio
+librosa
+
+# NLP et fine-tuning
+transformers
+datasets
+accelerate
+
+# Évaluation
+jiwer
+
+# Interface
+gradio
+
+zipfile

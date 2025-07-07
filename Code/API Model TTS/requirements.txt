@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+TTS>=0.11.0
+torch
+torchaudio
+numpy
+soundfile
+ffmpeg-python
+zipfile
