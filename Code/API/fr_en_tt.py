@@ -9,6 +9,14 @@ from pydantic import BaseModel, validator
 from TTS import TTS
 from faster_whisper import WhisperModel
 
+import torch
+from transformers import pipeline, AutoTokenizer, MT5ForConditionalGeneration
+
+model_path = "UBC-NLP/toucan-1.2B"  # we use the base model because we can't upload the fine-tuned one for test
+tokenizer_mt = AutoTokenizer.from_pretrained(model_path)
+model_mt = MT5ForConditionalGeneration.from_pretrained(model_path, torch_dtype=torch.float16, device_map="auto")
+model_mt.eval()
+
 # choose device
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -23,6 +31,28 @@ stt_model = WhisperModel("large-v2", compute_type="int8")
 
 app = FastAPI(title="FR/EN TTS & STT Service")
 
+# ---- helper
+def translate_with_toucan(text, target_code="bas"):
+    """
+    Runs inference with the loaded toucan-1.2B model using pipeline.
+
+    Args:
+        text (str): The text to translate.
+        target_code (str): The language code to translate to (e.g., 'eng', 'fra').
+
+    Returns:
+        str: The translated text.
+    """
+
+    # Format the input string for translation
+    input_text = f"{target_code}: {text}"
+    input_ids = tokenizer_mt(input_text, return_tensors="pt", max_length=1024, truncation=True).to("cuda:0")
+    with torch.no_grad():
+        generated_ids = model_mt.generate(**input_ids, num_beams=2, max_new_tokens=len(text), do_sample=True, temperature=0.6, top_p=0.9)
+    # Run inference
+
+    translated_text = tokenizer_mt.batch_decode(generated_ids, skip_special_tokens=True,  skip_prompt=True)[0]
+    return translated_text
 
 class TTSRequest(BaseModel):
     text: str
@@ -34,6 +64,27 @@ class TTSRequest(BaseModel):
             raise ValueError("language must be 'en' or 'fr'")
         return v
 
+class TranslationRequest(BaseModel):
+    text: str
+    language: str  # "en" or "fr" or "bas" # Target language
+
+    @validator("language")
+    def check_lang(cls, v):
+        if v not in ("en", "fr", "bas"):
+            raise ValueError("language must be 'en' or 'fr' or 'bas'")
+        return v
+
+@app.post("/translate/")
+async def translate(request: TranslationRequest):
+    """
+    Tranlation from language to language
+    """
+    input_text = f"{request.language}: {request.text}"
+    translation = translate_with_toucan(request.text, request.language)
+
+    return {
+        "translation": translation
+    }
 
 @app.post("/tts/")
 async def tts(request: TTSRequest):
