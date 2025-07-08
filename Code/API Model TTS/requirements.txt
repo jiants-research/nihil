@@ -6,4 +6,3 @@ torchaudio
 numpy
 soundfile
 ffmpeg-python
-zipfile
