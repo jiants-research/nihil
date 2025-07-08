@@ -4,12 +4,57 @@ import tempfile
 import torch
 from fastapi import FastAPI, File, Form, UploadFile, HTTPException
 from fastapi.responses import StreamingResponse, JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 from starlette.background import BackgroundTask
 from starlette.background import BackgroundTask
 from pydantic import BaseModel, validator
 from TTS.api import TTS
 from faster_whisper import WhisperModel
 from transformers import AutoTokenizer, MT5ForConditionalGeneration
+
+##
+from fastapi import FastAPI, File, UploadFile
+from fastapi.responses import JSONResponse
+import torch
+import torchaudio
+from transformers import WhisperForConditionalGeneration, WhisperProcessor
+from pydub import AudioSegment
+import tempfile
+import os
+
+
+import os
+import zipfile
+import requests
+
+MODEL_URL = "https://github.com/jiants-research/nihil/releases/download/whisper-bassa/model_final.zip"
+MODEL_DIR = "./model"
+ZIP_PATH = os.path.join(MODEL_DIR, "model_final.zip")
+EXTRACT_DIR = os.path.join(MODEL_DIR, "model_final")
+
+# === Téléchargement si nécessaire ===
+os.makedirs(MODEL_DIR, exist_ok=True)
+
+if not os.path.exists(EXTRACT_DIR):
+    print("Téléchargement du modèle...")
+    r = requests.get(MODEL_URL, stream=True)
+    with open(ZIP_PATH, "wb") as f:
+        for chunk in r.iter_content(chunk_size=8192):
+            f.write(chunk)
+
+    print("Décompression...")
+    with zipfile.ZipFile(ZIP_PATH, "r") as zip_ref:
+        zip_ref.extractall(MODEL_DIR)
+
+    print("✅ Modèle extrait dans :", EXTRACT_DIR)
+
+
+# Chargement du modèle
+processor = WhisperProcessor.from_pretrained("openai/whisper-tiny")
+model = WhisperForConditionalGeneration.from_pretrained("./model/model_final")
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+model.to(device)
+model.eval()
 
 # Limit CPU threads to avoid contention when serving multiple models
 torch.set_num_threads(1)
@@ -42,6 +87,16 @@ stt_model = WhisperModel(
 
 app = FastAPI(title="FR/EN TTS & STT Service")
 
+origins = [
+    "*"
+]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,  # Allow cookies and authorization headers
+    allow_methods=["*"],     # Allow all HTTP methods (GET, POST, PUT, DELETE, etc.)
+    allow_headers=["*"],     # Allow all headers
+)
 
 def translate_with_toucan(text: str, target_code: str = "bas") -> str:
     """
@@ -158,53 +213,6 @@ async def stt(
         {"transcript": transcript},
         background=BackgroundTask(lambda: os.remove(tmp.name))
     )
-
-##
-from fastapi import FastAPI, File, UploadFile
-from fastapi.responses import JSONResponse
-import torch
-import torchaudio
-from transformers import WhisperForConditionalGeneration, WhisperProcessor
-from pydub import AudioSegment
-import tempfile
-import os
-
-
-import os
-import zipfile
-import requests
-
-MODEL_URL = "https://github.com/jiants-research/nihil/releases/download/whisper-bassa/model_final.zip"
-MODEL_DIR = "./model"
-ZIP_PATH = os.path.join(MODEL_DIR, "model_final.zip")
-EXTRACT_DIR = os.path.join(MODEL_DIR, "model_final")
-
-# === Téléchargement si nécessaire ===
-os.makedirs(MODEL_DIR, exist_ok=True)
-
-if not os.path.exists(EXTRACT_DIR):
-    print("Téléchargement du modèle...")
-    r = requests.get(MODEL_URL, stream=True)
-    with open(ZIP_PATH, "wb") as f:
-        for chunk in r.iter_content(chunk_size=8192):
-            f.write(chunk)
-
-    print("Décompression...")
-    with zipfile.ZipFile(ZIP_PATH, "r") as zip_ref:
-        zip_ref.extractall(MODEL_DIR)
-
-    print("✅ Modèle extrait dans :", EXTRACT_DIR)
-
-
-# Chargement du modèle
-processor = WhisperProcessor.from_pretrained("openai/whisper-tiny")
-model = WhisperForConditionalGeneration.from_pretrained("./model/model_final")
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-model.to(device)
-model.eval()
-
-
-#app = FastAPI(title="Whisper Bassa API")
 
 @app.post("/transcribe/")
 async def transcribe_audio(file: UploadFile = File(...)):

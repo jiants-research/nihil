@@ -1,4 +1,4 @@
-package com.example.nihil
+package com.example.nima
 
 import io.flutter.embedding.android.FlutterActivity
 

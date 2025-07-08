@@ -1,10 +1,20 @@
 from fastapi import FastAPI, File, Form, UploadFile
 from fastapi.responses import StreamingResponse, JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 from starlette.background import BackgroundTask
 from pydantic import BaseModel
 import os
 
 app = FastAPI(title="Dummy FR/EN TTS & STT Service")
+
+# Allow CORS from anywhere
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Path to the dummy audio file
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))

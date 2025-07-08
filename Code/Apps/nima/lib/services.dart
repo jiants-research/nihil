@@ -1,3 +1,4 @@
+// Services.dart
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
@@ -8,13 +9,14 @@ import 'package:audioplayers/audioplayers.dart';
 
 class ApiService {
   // TODO: Replace with your actual server address
-  static const String _baseUrl = 'http://192.168.5.206:8000';
-
+  //static const String _baseUrl = 'http://192.168.5.206:8000';
+  static const String _baseUrl = 'https://d43c52d786be.ngrok-free.app';
   final AudioPlayer _audioPlayer = AudioPlayer();
 
   /// Translates [text] into [targetLang] ('en', 'fr', or 'bas').
   Future<String> translate(String text, String targetLang) async {
     final uri = Uri.parse('$_baseUrl/translate/');
+    print(uri);
     final response = await http.post(
       uri,
       headers: {'Content-Type': 'application/json'},
